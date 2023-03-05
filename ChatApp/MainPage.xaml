@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ChatApp.MainPage">
+    <StackLayout Padding="20">
+        <Entry Placeholder="Username"
+               x:Name="UsernameInput"/>
+        <Entry Placeholder="Message"
+               x:Name="MessageInput"/>
+        <Button Text="Send"
+                Margin="0,10,0,0"
+                x:Name="sendMessage"
+                Clicked="sendMessage_Clicked"/>
+        <Label x:Name="Messages"
+               TextColor="Blue"/>
+    </StackLayout>
+</ContentPage>

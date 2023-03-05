@@ -1,0 +1,61 @@
+﻿@page "/"
+@inject NavigationManager NavManger
+@implements IAsyncDisposable
+
+<div class="form-group">
+    <label>
+        User : <input class="form-control" @bind="username"/>
+    </label> 
+</div>
+
+<div class="form-group">
+    <label>
+        Message : <input class="form-control" @bind="MessageInput" />
+    </label>
+</div>
+<br/>
+<button @onclick="Send" class="btn btn-primary" disabled="@(!IsConnected)">Send</button>
+
+<hr/>
+<ul>
+    @foreach (string item in messages)
+    {
+        <li>@item</li>
+    }
+</ul>
+
+@code{
+    private HubConnection? hubConnection;
+    private List<string> messages = new();
+    private string? username;
+    private string? MessageInput;
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavManger.ToAbsoluteUri("/chat"))
+            .WithAutomaticReconnect()
+            .Build();
+        hubConnection.On<string, string>("ReciveMessage", (user, message) =>
+        {
+            var data = $"{user}:{message}";
+            messages.Add(data);
+            InvokeAsync(StateHasChanged); 
+        });
+        await hubConnection.StartAsync();
+    }
+    private async Task Send()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("SendMessage", username, MessageInput);
+        }
+    }
+    public bool IsConnected => hubConnection?.State == HubConnectionState.Connected;
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}
